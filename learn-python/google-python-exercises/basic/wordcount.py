@@ -37,20 +37,17 @@ print_words() and print_top().
 
 """
 
+
 import sys
 
 def read_split_file(filename):
     my_file = open(filename,'r')
     file_content = my_file.read()
     file_content = file_content.lower()
-    print(file_content)
     #remove punctuation
-    for c in ',.!':
+    for c in ',.!()[]{}"\'~`:_;?':
         file_content = file_content.replace(c,'')
-    return file_content.split()
-
-def print_words(filename):
-    word_list = read_split_file(filename)
+    word_list = file_content.split()
     word_list.sort()
     unique_words = []
     word_check = []
@@ -58,24 +55,19 @@ def print_words(filename):
         if word not in word_check:
             unique_words.append((word,word_list.count(word)))
             word_check.append(word)
-    longest_word = max(word_check, key=len)
+    return unique_words
+
+def print_words(filename):
+    unique_words = read_split_file(filename)
     for t in unique_words:
-        print("%s %s" % (t[0].ljust(len(longest_word),' '), t[1]))
+        print("%s %s" % (t[0].ljust(15,' '), t[1]))
     return
 
 def print_top(filename):
-    word_list = read_split_file(filename)
-    word_list.sort()
-    unique_words = []
-    word_check = []
-    for word in word_list:                                          
-        if word not in word_check:
-            unique_words.append((word,word_list.count(word)))
-            word_check.append(word)
+    unique_words = read_split_file(filename)
     unique_words = sorted(unique_words,key= lambda x: x[1], reverse=True)
-    longest_word = max(word_check, key=len)
     for i in range(20):
-        print("%s %s" % (unique_words[i][0].ljust(len(longest_word),' '), unique_words[i][1]))
+        print("%s %s" % (unique_words[i][0].ljust(15,' '), unique_words[i][1]))
     return
 
 # Define print_words(filename) and print_top(filename) functions.
