@@ -7,7 +7,7 @@
 # http://code.google.com/edu/languages/google-python-class/
 
 import sys
-import re
+from bs4 import BeautifulSoup
 
 """Baby Names exercise
 
@@ -34,7 +34,6 @@ Suggested milestones for incremental development:
  -Fix main() to use the extract_names list
 """
 
-
 def extract_names(filename):
     """
     Given a file name for baby.html, returns a list starting with the year string
@@ -42,7 +41,26 @@ def extract_names(filename):
     ['2006', 'Aaliyah 91', Aaron 57', 'Abagail 895', ' ...]
     """
     # +++your code here+++
-    return
+    myfile = open(filename,'r')
+    soup = BeautifulSoup(myfile, "html.parser")
+    # Extract srting containing year digits from its <h3>
+    yearstr = soup.body.h3
+    # The 2008 file has the year string inside a <h2> instead. Test if that's the case and \
+    # get the correct value.
+    if not yearstr:
+        yearstr = soup.body.h2
+    # Get only the year digits from the string.
+    year_digits = [int(s) for s in yearstr.text.split() if s.isdigit()]
+    # Find all <tr align="right"> elements. The data we want is in their <td> children.
+    # There are no other elements with the align="right" attribute in this document.
+    table_soup = soup.find_all(align="right")
+    listing = []
+    for row in table_soup:
+        listing.append(row.contents[1].string + " " + row.contents[0].string)
+        listing.append(row.contents[2].string + " " + row.contents[0].string)
+    sortedlist = sorted(listing)
+    sortedlist.insert(0, str(year_digits[0]))
+    return sortedlist
 
 
 def main():
@@ -64,6 +82,20 @@ def main():
         # +++your code here+++
         # For each filename, get the names, then either print the text output
         # or write it to a summary file
+
+    listsofnames = []
+    for filename in args:
+        listsofnames.append(extract_names(filename))
+
+    if summary:
+        with open('summary_file.txt', 'w') as f:
+            for row in listsofnames:
+                f.write(", ".join(row))
+    else:
+        for row in listsofnames:
+            print(row)
+
+
 
 
 if __name__ == '__main__':
